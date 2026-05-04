@@ -9,7 +9,7 @@ name = client.secret_path(os.environ["PROJECT_NAME"], os.environ["KEY_NAME"])
 
 value = client.access_secret_version(request={"name": name + "/versions/latest"})
 
-user_ssh_key_path = Path("~/id_deploy").expanduser()
+user_ssh_key_path = Path("~/.ssh/id_deploy").expanduser()
 with open(user_ssh_key_path, "wb") as f:
     f.write(value.payload.data)
 os.chmod(user_ssh_key_path, 0o600)
@@ -21,7 +21,9 @@ Host github.com
   IdentitiesOnly yes
 """
 
-known_hosts = subprocess.run(["ssh-keyscan", "-t", "rsa", "github.com"]).stdout.decode()
+known_hosts = subprocess.run(
+    ["ssh-keyscan", "-t", "rsa", "github.com"], capture_output=True
+).stdout.decode()
 
 with open(Path("~/.ssh/config").expanduser(), "w") as f:
     f.write(github_config)
